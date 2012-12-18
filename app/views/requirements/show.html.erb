@@ -10,6 +10,10 @@
   <%= @requirement.body %>
 </p>
 
+<p>
+  <b>Derived Requirements:</b>
+  <%= render :partial => "req", :collection => @derived_requirements %>
+</p>
 
 <%= link_to 'Edit', edit_requirement_path(@requirement) %> |
 <%= link_to 'Back', requirements_path %>
