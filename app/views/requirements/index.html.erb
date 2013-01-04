@@ -1,19 +1,18 @@
-<h1>Requirements</h1>
-
 <ul class='requirements_list'>
 <% @requirements.each do |requirement| %>
   <li>
   <%= link_to requirement, :class => 'requirement_block' do %>
-    <span class='req_id'><%= requirement.id %></spac>
-    <span class='title'><%= requirement.title %></spac>
-    <span class='body'><%= truncate(requirement.body) %></span>
+    <span class='req_id'><%= requirement.id %></span>
+    <span class='title'><%= truncate(requirement.title, :length => 80) %></span></br>
+    <span class='body'><%= truncate(requirement.body, :length => 50) %></span>
   <% end %>
   </li>
 <% end %>
 </ul>
 
 <style type="text/css">
-  .requirements_list li {list-style-type: none; margin-bottom: 0.3em;}
+  .requirements_list li {list-style-type: none; margin-bottom: 1.1em; margin-top: 1.1em;}
+  .requirements_list li a {text-decoration: none;}
   .requirements_list .body {font-size: smaller;}
 </style>
 
