@@ -1,19 +1,17 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Title:</b>
-  <%= @requirement.title %>
-</p>
+<%= link_to 'Back', requirements_path %>
+
+<h1><%= @requirement.title %></h1>
 
 <p>
-  <b>Body:</b>
   <%= @requirement.body %>
 </p>
 
-<p>
-  <b>Derived Requirements:</b>
-  <%= render :partial => "req", :collection => @derived_requirements %>
-</p>
+<% if @derived_requirements.any? %>
+<h3>Derived Requirements:</h3>
+<%= render :partial => "req", :collection => @derived_requirements %>
+<% end %>
 
 <%= link_to 'Edit', edit_requirement_path(@requirement) %> |
-<%= link_to 'Back', requirements_path %>
+<%= link_to 'Delete', @requirement, method: :delete, data: { confirm: 'Are you sure?' } %>

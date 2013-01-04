@@ -1,24 +1,21 @@
 <h1>Requirements</h1>
 
-<table>
-  <tr>
-    <th>Title</th>
-    <th>Body</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
+<ul class='requirements_list'>
 <% @requirements.each do |requirement| %>
-  <tr>
-    <td><%= requirement.title %></td>
-    <td><%= requirement.body %></td>
-    <td><%= link_to 'Show', requirement %></td>
-    <td><%= link_to 'Edit', edit_requirement_path(requirement) %></td>
-    <td><%= link_to 'Destroy', requirement, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
+  <li>
+  <%= link_to requirement, :class => 'requirement_block' do %>
+    <span class='req_id'><%= requirement.id %></spac>
+    <span class='title'><%= requirement.title %></spac>
+    <span class='body'><%= truncate(requirement.body) %></span>
+  <% end %>
+  </li>
 <% end %>
-</table>
+</ul>
+
+<style type="text/css">
+  .requirements_list li {list-style-type: none; margin-bottom: 0.3em;}
+  .requirements_list .body {font-size: smaller;}
+</style>
 
 <%= will_paginate @requirements %>
 
