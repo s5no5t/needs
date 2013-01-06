@@ -44,3 +44,5 @@ group :test, :development do
 end
 
 gem 'will_paginate', '~> 3.0.0'
+
+gem 'knockoutjs-rails'
