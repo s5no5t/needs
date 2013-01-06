@@ -7,11 +7,14 @@
 
 @import "susy";
 
-$column-width: 6em;
+$column-width: 4em;
+$total-columns: 15;
 
 .page {
 	// page acts as a container for our grid.
 	@include container;
+
+	@include susy-grid-background;
 
 	font-family: Gill, Helvetica, sans-serif
 
@@ -22,13 +25,13 @@ $column-width: 6em;
 	nav { @include span-columns(2,12); }
 
 	.content {
-	// content spans the final (omega) 9 columns of 12.
-	@include span-columns(10 omega,12);
+		// content spans the final (omega) 9 columns of 12.
+		@include span-columns(10 omega,12);
 
-	// main content spans 6 of those 9 columns.
-	.main { @include span-columns(6,9); }
+		// main content spans 6 of those 9 columns.
+		.main { @include span-columns(6,9); }
 
-	// secondary content spans the final 3 (omega) of 9 columns.
-	.secondary { @include span-columns(3 omega,9); }
+		// secondary content spans the final 3 (omega) of 9 columns.
+		.secondary { @include span-columns(3 omega,9); }
 	}
 }
