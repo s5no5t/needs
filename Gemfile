@@ -44,3 +44,4 @@ group :test, :development do
 end
 
 gem 'arbor-rails'
+gem 'will_paginate', '~> 3.0.0'

@@ -1,5 +1,5 @@
 class Requirement < ActiveRecord::Base
-  attr_accessible :body, :title
+  attr_accessible :body, :title, :derived_from_requirement_id
 
   belongs_to :derived_from_requirement, :class_name => 'Requirement', :foreign_key => 'derived_from_requirement_id'
 
