@@ -25,7 +25,6 @@
         // if the canvas is ever resized, screenSize should be called again with
         // the new dimensions
         particleSystem.screenSize(canvas.width, canvas.height) 
-        particleSystem.screenPadding(80) // leave an extra 80px of whitespace per side
         
         // set up some event handlers to allow for node-dragging
         that.initMouseHandling()
@@ -42,7 +41,7 @@
         // x,y point in the screen's coordinate system
         // 
         ctx.fillStyle = "white"
-        ctx.fillRect(0,0, canvas.width, canvas.height)
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
         
         particleSystem.eachEdge(function(edge, pt1, pt2){
           // edge: {source:Node, target:Node, length:#, data:{}}
@@ -134,6 +133,10 @@
     sys.addEdge('a','c')
     sys.addEdge('a','d')
     sys.addEdge('a','e')
+    sys.addEdge('a','e')
+    sys.addEdge('a','e')
+    sys.addNode('f', {alone:true, mass:.25})
+    sys.addNode('f', {alone:true, mass:.25})
     sys.addNode('f', {alone:true, mass:.25})
 
     // or, equivalently:
