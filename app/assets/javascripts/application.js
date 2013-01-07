@@ -14,4 +14,4 @@
 //= require jquery_ujs
 //= require arbor
 //= require arbor-tween
-//= require_tree .
+//= require_tree ./global
