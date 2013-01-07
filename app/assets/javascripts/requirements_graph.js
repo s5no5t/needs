@@ -156,8 +156,9 @@ $(function(){
 
   $.getJSON("/requirements", function(data){
     var req;
+
     for(var i=0; i<data.length; i++){
-      req = data[i];
+      req = data[i].requirement;
 
       sys.addNode(req.id.toString(), {label: "test" + i.toString()});
 

@@ -45,3 +45,6 @@ end
 
 gem 'arbor-rails'
 gem 'will_paginate', '~> 3.0.0'
+gem 'knockoutjs-rails'
+gem 'rabl'
+gem 'oj'

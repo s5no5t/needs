@@ -2,16 +2,14 @@
 
 <canvas id="viewport" width="800" height="600"></canvas>
 
-<ul class='requirements_list'>
-<% @requirements.each do |requirement| %>
-  <li>
-  <%= link_to requirement, :class => 'requirement_block' do %>
-    <span class='req_id'><%= requirement.id %></spac>
-    <span class='title'><%= requirement.title %></spac>
-    <span class='body'><%= truncate(requirement.body) %></span>
-  <% end %>
+<ul class='requirements_list' data-bind="foreach: requirements">
+  <li data-bind="with: requirement">
+    <a class='requirement_block' data-bind="attr: {href: url}">
+      <span class='req_id' data-bind="text: id"></span>
+      <span class='title' data-bind="text: title"></span>
+      <span class='body' data-bind="text: body"></span>
+    </a>
   </li>
-<% end %>
 </ul>
 
 <style type="text/css">
@@ -20,7 +18,15 @@
   #viewport {float: right;}
 </style>
 
-<%= will_paginate @requirements %>
+<script type="text/javascript">
+  $(function(){
+
+    $.getJSON("<%= requirements_path %>", function(data) { 
+      ko.applyBindings({requirements: data});
+    });
+
+  });
+</script>
 
 <br />
 
