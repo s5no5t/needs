@@ -9,6 +9,7 @@
   var Renderer = function(canvas){
     var canvas = $(canvas).get(0)
     var ctx = canvas.getContext("2d");
+    var gfx = arbor.Graphics(canvas);
     var particleSystem
 
     var that = {
@@ -31,6 +32,7 @@
       },
       
       redraw:function(){
+        gfx.clear()
         // 
         // redraw will be called repeatedly during the run whenever the node positions
         // change. the new positions for the nodes can be accessed by looking at the
@@ -61,10 +63,38 @@
           // node: {mass:#, p:{x,y}, name:"", data:{}}
           // pt:   {x:#, y:#}  node position in screen coords
 
+
+          var radius = 100
+          var label = node.data.label || ""
+          var w = ctx.measureText("" + label).width + 10
+          if(w < radius) {
+            w = radius;
+          }
+          if (!("" + label).match(/^[ \t]*$/)){
+            pt.x = Math.floor(pt.x)
+            pt.y = Math.floor(pt.y)
+          }else{
+            label = null
+          }
+
+
           // draw a rectangle centered at pt
-          var w = 10
+          //var w = 10
           ctx.fillStyle = (node.data.alone) ? "orange" : "black"
-          ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w)
+
+          //gfx.oval(pt.x-w/2, pt.y-w/2, w, w, {fill: ctx.fillStyle, alpha: 1.0})
+          gfx.rect(pt.x-w/2, pt.y-10, w, 20, 4, {fill: ctx.fillStyle, alpha: 1.0})
+
+          if (label){
+            ctx.font = "12px Helvetica"
+            ctx.textAlign = "center"
+            ctx.fillStyle = "white"
+            if (node.data.color=='none') ctx.fillStyle = '#333333'
+            ctx.fillText(label, pt.x, pt.y+4)
+            // ctx.fillText(label||"", pt.x, pt.y+4)
+          }
+
+          //ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w)
         })    			
       },
       
@@ -124,35 +154,23 @@
   }    
 
   $(document).ready(function(){
+    //var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
     var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
     sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
     sys.renderer = Renderer("#viewport") // our newly created renderer will have its .init() method called shortly by sys...
 
-    // add some nodes to the graph and watch it go...
-    sys.addEdge('a','b')
-    sys.addEdge('a','c')
-    sys.addEdge('a','d')
-    sys.addEdge('a','e')
-    sys.addEdge('a','e')
-    sys.addEdge('a','e')
-    sys.addNode('f', {alone:true, mass:.25})
-    sys.addNode('f', {alone:true, mass:.25})
-    sys.addNode('f', {alone:true, mass:.25})
+    $.getJSON("/requirements", function(data){
+      var req;
+      for(var i=0; i<data.length; i++){
+        req = data[i];
 
-    // or, equivalently:
-    //
-    // sys.graft({
-    //   nodes:{
-    //     f:{alone:true, mass:.25}
-    //   }, 
-    //   edges:{
-    //     a:{ b:{},
-    //         c:{},
-    //         d:{},
-    //         e:{}
-    //     }
-    //   }
-    // })
+        sys.addNode(req.id.toString(), {label: "test" + i.toString()});
+
+        if(req.id > 0){
+          sys.addEdge("0", req.id.toString());
+        }
+      }
+    })
     
   })
 
