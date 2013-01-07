@@ -56,7 +56,7 @@ $(function(){
           // node: {mass:#, p:{x,y}, name:"", data:{}}
           // pt:   {x:#, y:#}  node position in screen coords
 
-          var radius = 100;
+          var radius = 30;
           var label = node.data.label || "";
           var w = ctx.measureText("" + label).width + 10;
 
@@ -160,11 +160,7 @@ $(function(){
     for(var i=0; i<data.length; i++){
       req = data[i].requirement;
 
-      sys.addNode(req.id.toString(), {label: "test" + i.toString()});
-
-      if(req.id > 0){
-        sys.addEdge("0", req.id.toString());
-      }
+      sys.addNode(req.id.toString(), {label: req.id.toString()});
     }
   });
 
