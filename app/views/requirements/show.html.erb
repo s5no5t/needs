@@ -2,6 +2,11 @@
 
 <%= link_to 'Back', requirements_path %>
 
+<% if @deriving_requirements.any? %>
+<h3>Derived from:</h3>
+<%= render :partial => "req", :collection => @deriving_requirements %>
+<% end %>
+
 <h1><%= @requirement.title %></h1>
 
 <p>
@@ -9,7 +14,7 @@
 </p>
 
 <% if @derived_requirements.any? %>
-<h3>Derived Requirements:</h3>
+<h3>Derived:</h3>
 <%= render :partial => "req", :collection => @derived_requirements %>
 <% end %>
 

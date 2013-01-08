@@ -3,7 +3,8 @@
 <table class='requirements_list' data-bind="foreach: requirements">
   <tr data-bind="with: requirement">
     <td class='req_id' data-bind="text: id"></td>
-    <td class='title' data-bind="text: title"></td>
+    <td class='title'>
+      <a data-bind="text: title, attr: {href: url}"></a>
     </td>
   </tr>
 </table>

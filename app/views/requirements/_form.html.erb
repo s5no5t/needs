@@ -11,6 +11,11 @@
     </div>
   <% end %>
 
+  <p>
+    <b>Deriving from:</b>
+    <%= render :partial => "req", :collection => @deriving_requirements %>
+  </p>
+
   <div class="field">
     <%= f.label :title %><br />
     <%= f.text_field :title %>
@@ -19,14 +24,6 @@
     <%= f.label :body %><br />
     <%= f.text_area :body %>
   </div>
-  
-  <p>
-    <b>Derived from:</b>
-    <% if @derived_from_requirement %>
-      <%= render :partial => "req", :object => @derived_from_requirement %>
-    <% end %>
-    <%= select("requirement", "derived_from_requirement_id", Requirement.all.collect {|p| [ p.title, p.id ] }, {:include_blank => 'None'}) %>
-  </p>
   
   <div class="actions">
     <%= f.submit %>

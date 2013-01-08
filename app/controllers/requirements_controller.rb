@@ -2,8 +2,8 @@ class RequirementsController < ApplicationController
   # GET /requirements
   # GET /requirements.json
   def index
-    @requirements = Requirement.paginate(:page => params[:page], :per_page => 10)
-    #@requirements = Requirement.includes(:derived_requirements, :deriving_requirements).all
+    @requirements = Requirement.includes(:derived_requirements, :deriving_requirements)
+                               .paginate(:page => params[:page], :per_page => 10)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,7 +14,9 @@ class RequirementsController < ApplicationController
   # GET /requirements/1
   # GET /requirements/1.json
   def show
-    @requirement = Requirement.find(params[:id])
+    @requirement = Requirement.includes(:derived_requirements, :deriving_requirements)
+                              .find(params[:id])
+    @deriving_requirements = @requirement.deriving_requirements
     @derived_requirements = @requirement.derived_requirements
 
     respond_to do |format|
@@ -36,8 +38,9 @@ class RequirementsController < ApplicationController
 
   # GET /requirements/1/edit
   def edit
-    @requirement = Requirement.find(params[:id])
-    @derived_requirements = @requirement.derived_requirements
+    @requirement = Requirement.includes(:deriving_requirements)
+                              .find(params[:id])
+    @deriving_requirements = @requirement.deriving_requirements
   end
 
   # POST /requirements
