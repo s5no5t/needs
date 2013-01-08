@@ -1,0 +1,37 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+
+@import "compass/reset";
+
+@import "susy";
+
+$column-width: 4em;
+$total-columns: 15;
+
+.page {
+	// page acts as a container for our grid.
+	@include container;
+
+	//@include susy-grid-background;
+
+	font-family: Gill, Helvetica, sans-serif
+
+	// header and footer are full-width by default.
+	header, footer { clear: both; }
+
+	// nav spans 3 columns of total 12.
+	//nav { @include span-columns(2,12); }
+
+	.content {
+		// content spans the final (omega) 9 columns of 12.
+		@include span-columns(12 omega,12);
+
+		// main content spans 6 of those 9 columns.
+		//.main { @include span-columns(6,9); }
+
+		// secondary content spans the final 3 (omega) of 9 columns.
+		//.secondary { @include span-columns(3 omega,9); }
+	}
+}

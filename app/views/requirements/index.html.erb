@@ -1,4 +1,4 @@
-<canvas id="viewport" width="600" height="600"></canvas>
+<canvas id="viewport" width="400" height="400"></canvas>
 
 <table class='requirements_list' data-bind="foreach: requirements">
   <tr data-bind="with: requirement">
@@ -10,8 +10,14 @@
 </table>
 
 <style type="text/css">
-  .requirements_list li {list-style-type: none; margin-bottom: 0.3em;}
+  .requirements_list .requirement:hover {
+    background-color: #ccc
+  }
+  .requirements_list .requirement a {text-decoration: none;}
+  .requirements_list .req_id {float: right;}
+  .requirements_list .title {}
   .requirements_list .body {font-size: smaller;}
+
   #viewport {float: right;}
 </style>
 
