@@ -1,8 +1,8 @@
 <canvas id="viewport" width="400" height="400"></canvas>
 
-<table class='requirements_list' data-bind="foreach: requirements">
+<table id='requirements_list' data-bind="foreach: requirements">
   <tr data-bind="with: requirement">
-    <td class='req_id' data-bind="text: id"></td>
+    <td class='id' data-bind="text: id"></td>
     <td class='title'>
       <a data-bind="text: title, attr: {href: url}"></a>
     </td>
@@ -10,13 +10,12 @@
 </table>
 
 <style type="text/css">
-  .requirements_list .requirement:hover {
-    background-color: #ccc
-  }
-  .requirements_list .requirement a {text-decoration: none;}
-  .requirements_list .req_id {float: right;}
-  .requirements_list .title {}
-  .requirements_list .body {font-size: smaller;}
+  #requirements_list {width: 60%;}
+  #requirements_list a {text-decoration: none; color: inherit;}
+  #requirements_list a:hover {background-color: inherit;}
+  #requirements_list td {padding: 0.3em;}
+  #requirements_list tr:hover {cursor: pointer; background-color: #ddd;}
+  #requirements_list tr {background-color: #eee; border: 1px solid #ddd;}
 
   #viewport {float: right;}
 </style>
@@ -24,9 +23,18 @@
 <script type="text/javascript">
   $(function(){
 
-    $.getJSON("<%= requirements_path %>", function(data) { 
+    $.getJSON("<%= requirements_path %>", function(data){ 
       ko.applyBindings({requirements: data});
+
+      $("#requirements_list tr").click(function(e){
+
+        var href = $(".title a", e.srcElement.parentElement).attr("href");
+        window.location.href = href;
+        
+      });
+
     });
+
 
   });
 </script>
