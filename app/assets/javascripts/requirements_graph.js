@@ -54,81 +54,65 @@ $(function(){
         particleSystem.eachNode(function(node, pt){
           // node: {mass:#, p:{x,y}, name:"", data:{}}
           // pt:   {x:#, y:#}  node position in screen coords
-
           var radius = 30;
           var label = node.data.label || "";
-          var w = ctx.measureText("" + label).width + 10;
+          var w = ctx.measureText(label).width + 10;
 
           if(w < radius) {
             w = radius;
           }
-          if(!("" + label).match(/^[ \t]*$/)){
-            pt.x = Math.floor(pt.x);
-            pt.y = Math.floor(pt.y);
-          }
-          else{
-            label = null;
-          }
+          pt.x = Math.floor(pt.x);
+          pt.y = Math.floor(pt.y);
 
           ctx.fillStyle = "black";
-
           //gfx.oval(pt.x-w/2, pt.y-w/2, w, w, {fill: ctx.fillStyle, alpha: 1.0})
           gfx.rect(pt.x-w/2, pt.y-10, w, 20, 4, {fill: ctx.fillStyle, alpha: 1.0});
 
-          if(label){
-            ctx.font = "12px Helvetica";
-            ctx.textAlign = "center";
-            ctx.fillStyle = "white";
-            if (node.data.color=='none'){
-              ctx.fillStyle = '#333333';
-            }
-            ctx.fillText(label, pt.x, pt.y+4);
-          }
-
+          ctx.font = "12px Helvetica";
+          ctx.textAlign = "center";
+          ctx.fillStyle = "white";
+          ctx.fillText(label, pt.x, pt.y+4);
         });
       },
 
       initMouseHandling: function(){
         // no-nonsense drag and drop (thanks springy.js)
-        var selected = null;
-        var nearest = null;
         var dragged = null;
-        var oldmass = 1;
 
         $(canvas).mousedown(function(e){
           var pos = $(this).offset();
-          var p = {x:e.pageX-pos.left, y:e.pageY-pos.top}
-          selected = nearest = dragged = particleSystem.nearest(p);
+          var p = {x:e.pageX-pos.left, y:e.pageY-pos.top};
+          var nearest = particleSystem.nearest(p);
+          if (!nearest)
+            return;
 
-          if (selected.node !== null){
-            dragged.node.fixed = true
-          }
-          return false
+          dragged = nearest;
+          dragged.node.fixed = true;
+
+          return false;
         });
 
         $(canvas).mousemove(function(e){
-          var old_nearest = nearest && nearest.node._id
-          var pos = $(this).offset();
-          var s = {x:e.pageX-pos.left, y:e.pageY-pos.top};
-
-          nearest = particleSystem.nearest(s);
-          if (!nearest) return
-
           if (dragged !== null && dragged.node !== null){
-            var p = particleSystem.fromScreen(s)
-            dragged.node.p = {x:p.x, y:p.y}
+            var pos = $(this).offset();
+            var p = {x:e.pageX-pos.left, y:e.pageY-pos.top};
+            var s = particleSystem.fromScreen(p);
+            dragged.node.p = {x:s.x, y:s.y};
+            dragged.node.tempMass = 100;
           }
 
-          return false
+          return false;
         });
 
-        $(window).bind('mouseup',function(e){
-          if (dragged===null || dragged.node===undefined) return
-          dragged.node.fixed = false
-          dragged.node.tempMass = 100
+        $(window).bind('mouseup', function(e){
+          if (dragged===null || dragged.node===undefined)
+            return;
+
+          dragged.node.fixed = false;
+          dragged.node.tempMass = 100;
           dragged = null;
-          selected = null
-          return false
+
+          return false;
         });
       }
 
@@ -139,7 +123,10 @@ $(function(){
 
   var canvas = $("#viewport").get(0);
   var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
-  sys.parameters({gravity:true}); // use center-gravity to make the graph settle nicely (ymmv)
+  sys.parameters({
+    gravity: true, // use center-gravity to make the graph settle nicely (ymmv)
+    stiffness: 1000
+  });
   sys.renderer = Renderer(canvas); // our newly created renderer will have its .init() method called shortly by sys...
 
   $.getJSON("/requirements", function(data){
