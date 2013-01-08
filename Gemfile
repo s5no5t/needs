@@ -41,6 +41,7 @@ gem 'thinking-sphinx', '2.0.10'
 
 group :test, :development do
   gem "rspec-rails", "~> 2.0"
+  gem "ffaker"
 end
 
 gem 'arbor-rails'
