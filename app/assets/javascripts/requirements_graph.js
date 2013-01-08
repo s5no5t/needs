@@ -6,7 +6,7 @@ $(function(){
     var particleSystem;
 
     var that = {
-      init:function(system){
+      init: function(system){
         //
         // the particle system will call the init function once, right before the
         // first frame is to be drawn. it's a good place to set up the canvas and
@@ -24,8 +24,7 @@ $(function(){
         that.initMouseHandling();
       },
       
-      redraw:function(){
-        gfx.clear();
+      redraw: function(){
         // 
         // redraw will be called repeatedly during the run whenever the node positions
         // change. the new positions for the nodes can be accessed by looking at the
@@ -37,7 +36,7 @@ $(function(){
         // 
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         particleSystem.eachEdge(function(edge, pt1, pt2){
           // edge: {source:Node, target:Node, length:#, data:{}}
           // pt1:  {x:#, y:#}  source position in screen coords
@@ -84,83 +83,94 @@ $(function(){
               ctx.fillStyle = '#333333';
             }
             ctx.fillText(label, pt.x, pt.y+4);
-            // ctx.fillText(label||"", pt.x, pt.y+4)
           }
 
-          //ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w)
         });
       },
-      
+
       initMouseHandling: function(){
         // no-nonsense drag and drop (thanks springy.js)
+        var selected = null;
+        var nearest = null;
         var dragged = null;
+        var oldmass = 1;
 
-        // set up a handler object that will initially listen for mousedowns then
-        // for moves and mouseups while dragging
-        var handler = {
-          clicked: function(e){
-            var pos = $(canvas).offset();
-            _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top);
-            dragged = particleSystem.nearest(_mouseP);
+        $(canvas).mousedown(function(e){
+          var pos = $(this).offset();
+          var p = {x:e.pageX-pos.left, y:e.pageY-pos.top}
+          selected = nearest = dragged = particleSystem.nearest(p);
 
-            if (dragged && dragged.node !== null){
-              // while we're dragging, don't let physics move the node
-              dragged.node.fixed = true;
-            }
-
-            $(canvas).bind('mousemove', handler.dragged);
-            $(window).bind('mouseup', handler.dropped);
-
-            return false;
-          },
-          dragged: function(e){
-            var pos = $(canvas).offset();
-            var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top);
-
-            if (dragged && dragged.node !== null){
-              var p = particleSystem.fromScreen(s);
-              dragged.node.p = p;
-            }
-
-            return false;
-          },
-
-          dropped: function(e){
-            if (dragged===null || dragged.node===undefined) 
-              return;
-            if (dragged.node !== null) 
-              dragged.node.fixed = false;
-            dragged.node.tempMass = 1000;
-            dragged = null;
-            $(canvas).unbind('mousemove', handler.dragged);
-            $(window).unbind('mouseup', handler.dropped);
-            _mouseP = null;
-            return false;
+          if (selected.node !== null){
+            dragged.node.fixed = true
           }
-        };
-        
-        // start listening
-        $(canvas).mousedown(handler.clicked);
+          return false
+        });
+
+        $(canvas).mousemove(function(e){
+          var old_nearest = nearest && nearest.node._id
+          var pos = $(this).offset();
+          var s = {x:e.pageX-pos.left, y:e.pageY-pos.top};
+
+          nearest = particleSystem.nearest(s);
+          if (!nearest) return
+
+          if (dragged !== null && dragged.node !== null){
+            var p = particleSystem.fromScreen(s)
+            dragged.node.p = {x:p.x, y:p.y}
+          }
+
+          return false
+        });
+
+        $(window).bind('mouseup',function(e){
+          if (dragged===null || dragged.node===undefined) return
+          dragged.node.fixed = false
+          dragged.node.tempMass = 100
+          dragged = null;
+          selected = null
+          return false
+        });
       }
-      
+
     };
     
     return that;
   };
 
   var canvas = $("#viewport").get(0);
-  //var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
-  var sys = arbor.ParticleSystem(1000, 600, 0.5); // create the system with sensible repulsion/stiffness/friction
+  var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
   sys.parameters({gravity:true}); // use center-gravity to make the graph settle nicely (ymmv)
   sys.renderer = Renderer(canvas); // our newly created renderer will have its .init() method called shortly by sys...
 
   $.getJSON("/requirements", function(data){
-    var req;
+    var req, derived_reqs, derived_req, found;
 
     for(var i=0; i<data.length; i++){
+
       req = data[i].requirement;
 
-      sys.addNode(req.id.toString(), {label: req.id.toString()});
+      sys.addNode(req.id.toString(), {
+        label: req.id.toString()
+      });
+
+      derived_reqs = req.derived_requirements;
+
+      for(var j=0; j<derived_reqs.length; j++){
+        derived_req = derived_reqs[j].derived_requirement;
+
+        found = false;
+        for(var k=0; k<data.length; k++){
+          if(data[k].requirement.id === derived_req.id){
+            found = true;
+          }
+        }
+
+        if (found){
+          sys.addEdge(req.id.toString(), derived_req.id.toString());
+        }
+
+      }
+
     }
   });
 

@@ -1,16 +1,12 @@
-<h1>Requirements</h1>
+<canvas id="viewport" width="600" height="600"></canvas>
 
-<canvas id="viewport" width="800" height="600"></canvas>
-
-<ul class='requirements_list' data-bind="foreach: requirements">
-  <li data-bind="with: requirement">
-    <a class='requirement_block' data-bind="attr: {href: url}">
-      <span class='req_id' data-bind="text: id"></span>
-      <span class='title' data-bind="text: title"></span>
-      <span class='body' data-bind="text: body"></span>
-    </a>
-  </li>
-</ul>
+<table class='requirements_list' data-bind="foreach: requirements">
+  <tr data-bind="with: requirement">
+    <td class='req_id' data-bind="text: id"></td>
+    <td class='title' data-bind="text: title"></td>
+    </td>
+  </tr>
+</table>
 
 <style type="text/css">
   .requirements_list li {list-style-type: none; margin-bottom: 0.3em;}

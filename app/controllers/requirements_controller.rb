@@ -2,7 +2,8 @@ class RequirementsController < ApplicationController
   # GET /requirements
   # GET /requirements.json
   def index
-    @requirements = Requirement.paginate(:page => params[:page], :per_page => 15)
+    #@requirements = Requirement.paginate(:page => params[:page], :per_page => 15)
+    @requirements = Requirement.includes(:derived_requirements, :deriving_requirements).all
 
     respond_to do |format|
       format.html # index.html.erb
