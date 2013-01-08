@@ -11,14 +11,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121214153723) do
+ActiveRecord::Schema.define(:version => 20130108091316) do
+
+  create_table "derived_relationships", :force => true do |t|
+    t.integer  "deriving_requirement_id"
+    t.integer  "derived_requirement_id"
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
+  end
 
   create_table "requirements", :force => true do |t|
     t.string   "title"
     t.text     "body"
-    t.integer  "derived_from_requirement_id"
-    t.datetime "created_at",                  :null => false
-    t.datetime "updated_at",                  :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
 end

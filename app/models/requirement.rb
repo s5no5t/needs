@@ -1,7 +1,9 @@
 class Requirement < ActiveRecord::Base
-  attr_accessible :body, :title, :derived_from_requirement_id
+  attr_accessible :body, :title
 
-  belongs_to :derived_from_requirement, :class_name => 'Requirement', :foreign_key => 'derived_from_requirement_id'
+  has_many :derived_relationships, :foreign_key => 'derived_requirement_id'
+  has_many :derived_requirements, :through => :derived_relationships
 
-  has_many :derived_requirements, :class_name => 'Requirement', :foreign_key => 'derived_from_requirement_id'
+  has_many :deriving_relationships, :class_name => 'DerivedRelationships', :foreign_key => 'deriving_requirement_id'
+  has_many :derving_requirements, :through => :deriving_relationships
 end
