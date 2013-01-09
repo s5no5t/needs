@@ -1,7 +1,10 @@
 <canvas id="viewport" width="400" height="400"></canvas>
 
-<table id='requirements_list' data-bind="foreach: requirements">
-  <tr data-bind="with: requirement">
+<table id='requirements_list' data-bind="foreach: requirements, event: {mouseleave: update_graph_for_all_reqs}">
+  <tr data-bind="with: requirement, event: {
+                                      mouseenter: $parent.update_graph_for_req, 
+                                      click: $parent.show
+                                    }">
     <td class='id' data-bind="text: id"></td>
     <td class='title'>
       <a data-bind="text: title, attr: {href: url}"></a>
@@ -23,18 +26,78 @@
 <script type="text/javascript">
   $(function(){
 
-    $.getJSON("<%= requirements_path %>", function(data){ 
-      ko.applyBindings({requirements: data});
+    var canvas = $("#viewport").get(0);
+    var sys = needs.particleSystem(canvas);
 
-      $("#requirements_list tr").click(function(e){
+    var update_graph_for_reqs = function(reqs){
+      var nodes = {}, edges = {};
 
-        var href = $(".title a", e.srcElement.parentElement).attr("href");
-        window.location.href = href;
-        
+      $(reqs).each(function(){
+        var req = this.requirement;
+        var req_id = req.id.toString();
+
+        nodes[req_id] = {label: req_id + " " + req.title.substring(0, 20)};
+
+        $(req.derived_requirements).each(function(){
+          var derived_req = this.derived_requirement;
+          var derived_req_id = derived_req.id.toString();
+
+          nodes[derived_req_id] = {
+            label: derived_req_id + " " + derived_req.title.substring(0, 20)
+          };
+
+          edges[derived_req_id] = edges[derived_req_id] || {};
+          edges[derived_req_id][req_id] = {};
+        });
+
       });
 
-    });
+      sys.merge({nodes: nodes, edges: edges});
+    };
 
+    var update_graph_for_req = function(req){
+      var nodes = {}, edges = {};
+      var req_id = req.id.toString();
+
+      nodes[req.id.toString()] = {label: req.id.toString() + " " + req.title.substring(0, 20)};
+
+      $(req.derived_requirements).each(function(){
+        var derived_req = this.derived_requirement;
+        var derived_req_id = derived_req.id.toString();
+
+        nodes[derived_req_id] = {
+          label: derived_req_id + " " + derived_req.title.substring(0, 20)
+        };
+
+        edges[derived_req_id] = edges[derived_req_id] || {};
+        edges[derived_req_id][req_id] = {};
+      });
+
+      sys.merge({nodes: nodes, edges: edges});
+    };
+
+    $.getJSON("<%= requirements_path(:format => :json) %>", function(data){
+
+      var viewModel = {
+        requirements: data,
+
+        show: function(){
+          var href = this.requirement.url;
+          window.location.href = href;
+        },
+
+        update_graph_for_req: function(){
+          update_graph_for_req(this.requirement);
+        },
+
+        update_graph_for_all_reqs: function(){
+          update_graph_for_reqs(data);
+        }
+      };
+
+      ko.applyBindings(viewModel);
+      update_graph_for_reqs(data);
+    });
 
   });
 </script>
