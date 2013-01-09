@@ -11,10 +11,8 @@
     </div>
   <% end %>
 
-  <p>
-    <b>Deriving from:</b>
-    <%= render :partial => "req", :collection => @deriving_requirements %>
-  </p>
+  <%= render :partial => "req", :collection => @deriving_requirements %>
+  <br/>
 
   <div class="field">
     <%= f.label :title %><br />
