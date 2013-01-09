@@ -50,6 +50,18 @@
           edges[derived_req_id][req_id] = {};
         });
 
+        $(req.deriving_requirements).each(function(){
+          var deriving_req = this.deriving_requirement;
+          var deriving_req_id = deriving_req.id.toString();
+
+          nodes[deriving_req_id] = {
+            label: deriving_req_id + " " + deriving_req.title.substring(0, 20)
+          };
+
+          edges[req_id] = edges[req_id] || {};
+          edges[req_id][deriving_req_id] = {};
+        });
+
       });
 
       sys.merge({nodes: nodes, edges: edges});
@@ -71,6 +83,18 @@
 
         edges[derived_req_id] = edges[derived_req_id] || {};
         edges[derived_req_id][req_id] = {};
+      });
+
+      $(req.deriving_requirements).each(function(){
+        var deriving_req = this.deriving_requirement;
+        var deriving_req_id = deriving_req.id.toString();
+
+        nodes[deriving_req_id] = {
+          label: deriving_req_id + " " + deriving_req.title.substring(0, 20)
+        };
+
+        edges[req_id] = edges[req_id] || {};
+        edges[req_id][deriving_req_id] = {};
       });
 
       sys.merge({nodes: nodes, edges: edges});
