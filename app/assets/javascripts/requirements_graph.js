@@ -44,17 +44,32 @@ $(function(){
 
           // draw a line from pt1 to pt2
           ctx.strokeStyle = "rgba(0,0,0, .333)";
-          ctx.lineWidth = 1;
+          ctx.fillStyle = "#ddd";
+          ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.moveTo(pt1.x, pt1.y);
           ctx.lineTo(pt2.x, pt2.y);
+          
+          var draw_arrow = function(from, to){
+              var headlen = 25;
+              var angle = Math.atan2(to.y-from.y, to.x-from.x);
+              ctx.moveTo(to.x, to.y);
+              ctx.lineTo(to.x-headlen*Math.cos(angle-Math.PI/6),to.y-headlen*Math.sin(angle-Math.PI/6));
+              ctx.lineTo(to.x-headlen*Math.cos(angle+Math.PI/6),to.y-headlen*Math.sin(angle+Math.PI/6));
+              ctx.lineTo(to.x, to.y);
+          }
+
+          draw_arrow(pt1, pt2);
+          ctx.fill();
+
           ctx.stroke();
+
         });
 
         particleSystem.eachNode(function(node, pt){
           // node: {mass:#, p:{x,y}, name:"", data:{}}
           // pt:   {x:#, y:#}  node position in screen coords
-          var radius = 30;
+          var radius = 50;
           var label = node.data.label || "";
           var w = ctx.measureText(label).width + 10;
 
@@ -64,7 +79,7 @@ $(function(){
           pt.x = Math.floor(pt.x);
           pt.y = Math.floor(pt.y);
 
-          ctx.fillStyle = "black";
+          ctx.fillStyle = "#555";
           //gfx.oval(pt.x-w/2, pt.y-w/2, w, w, {fill: ctx.fillStyle, alpha: 1.0})
           gfx.rect(pt.x-w/2, pt.y-10, w, 20, 4, {fill: ctx.fillStyle, alpha: 1.0});
 
@@ -129,7 +144,7 @@ $(function(){
   });
   sys.renderer = Renderer(canvas); // our newly created renderer will have its .init() method called shortly by sys...
 
-  $.getJSON("/requirements", function(data){
+  $.getJSON("/requirements.json", function(data){
     var req, derived_reqs, derived_req, found;
 
     for(var i=0; i<data.length; i++){
@@ -137,7 +152,7 @@ $(function(){
       req = data[i].requirement;
 
       sys.addNode(req.id.toString(), {
-        label: req.id.toString()
+        label: req.id.toString() + " " + req.title.substring(0, 20)
       });
 
       derived_reqs = req.derived_requirements;
