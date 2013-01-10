@@ -58,7 +58,7 @@ var needs = {
             ctx.lineTo(to.x-headlen*Math.cos(angle-Math.PI/6),to.y-headlen*Math.sin(angle-Math.PI/6));
             ctx.lineTo(to.x-headlen*Math.cos(angle+Math.PI/6),to.y-headlen*Math.sin(angle+Math.PI/6));
             ctx.lineTo(to.x, to.y);
-        }
+        };
 
         draw_arrow(pt1, pt2);
         ctx.fill();
@@ -70,30 +70,42 @@ var needs = {
       particleSystem.eachNode(function(node, pt){
         // node: {mass:#, p:{x,y}, name:"", data:{}}
         // pt:   {x:#, y:#}  node position in screen coords
-        var radius = 50;
         var label = node.data.label || "";
-        var w = ctx.measureText(label).width + 10;
 
-        if(w < radius) {
-          w = radius;
+        if (!node.data.orig_width || !node.data.orig_height){
+          node.data.orig_width = ctx.measureText(label).width + 10;
+          node.data.orig_height = 20;
+          node.data.width = node.data.orig_width;
+          node.data.height = node.data.orig_height;
         }
+
+        if(node.data.width < 100) {
+          node.data.width = 100;
+        }
+        if(node.data.height < 20) {
+          node.data.height = 20;
+        }
+
+        var w = node.data.width;
+        var h = node.data.height;
+
         pt.x = Math.floor(pt.x);
         pt.y = Math.floor(pt.y);
 
         ctx.fillStyle = "#555";
         //gfx.oval(pt.x-w/2, pt.y-w/2, w, w, {fill: ctx.fillStyle, alpha: 1.0})
-        gfx.rect(pt.x-w/2, pt.y-10, w, 20, 4, {fill: ctx.fillStyle, alpha: 1.0});
+        gfx.rect(pt.x-w/2, pt.y-h/2, w, h, 4, {fill: ctx.fillStyle, alpha: 1.0});
 
         ctx.font = "12px Helvetica";
         ctx.textAlign = "center";
         ctx.fillStyle = "white";
         ctx.fillText(label, pt.x, pt.y+4);
       });
-    }
+    };
 
     that.initMouseHandling = function(){
       // no-nonsense drag and drop (thanks springy.js)
-      var dragged = null;
+      var dragged_node = null, detailed_node = null, dragged_has_moved = false;
 
       $(canvas).mousedown(function(e){
         var pos = $(this).offset();
@@ -102,31 +114,73 @@ var needs = {
         if (!nearest)
           return;
 
-        dragged = nearest;
-        dragged.node.fixed = true;
+        dragged_node = nearest.node;
+        dragged_node.fixed = true;
+        dragged_has_moved = false;
 
         return false;
       });
 
       $(canvas).mousemove(function(e){
-        if (dragged !== null && dragged.node !== null){
+        var highlight_node = function(node){
+          particleSystem.tweenNode(detailed_node, 0.5, {
+            width: detailed_node.data.orig_width * 1.5,
+            height: detailed_node.data.orig_height * 1.5
+          });
+        };
+
+        var unhighlight_node = function(node){
+          particleSystem.tweenNode(detailed_node, 0.5, {
+            width: detailed_node.data.orig_width,
+            height: detailed_node.data.orig_height
+          });
+        };
+
+        if (dragged_node){
           var pos = $(this).offset();
           var p = {x:e.pageX-pos.left, y:e.pageY-pos.top};
           var s = particleSystem.fromScreen(p);
-          dragged.node.p = {x:s.x, y:s.y};
-          dragged.node.tempMass = 100;
+          dragged_node.p = {x:s.x, y:s.y};
+          dragged_node.tempMass = 100;
+          dragged_has_moved = true;
+        }else{
+          var pos = $(this).offset();
+          var p = {x:e.pageX-pos.left, y:e.pageY-pos.top};
+          var nearest = particleSystem.nearest(p);
+
+          if (!nearest){
+            if(detailed_node){
+              highlight_node(detailed_node);
+              detailed_node = null;
+            }
+            return;
+          }
+
+          if(detailed_node && detailed_node !== nearest.node){
+            unhighlight_node(detailed_node);
+          }
+
+          if(detailed_node !== nearest.node){
+            detailed_node = nearest.node;
+            highlight_node(detailed_node);
+          }
         }
 
         return false;
       });
 
       $(window).bind('mouseup', function(e){
-        if (dragged===null || dragged.node===undefined)
+        if (!dragged_node)
           return;
 
-        dragged.node.fixed = false;
-        dragged.node.tempMass = 100;
-        dragged = null;
+        if (!dragged_has_moved){
+          var url = dragged_node.data.url;
+          window.location.href = url;
+        }
+
+        dragged_node.fixed = false;
+        dragged_node.tempMass = 100;
+        dragged_node = null;
 
         return false;
       });
@@ -136,7 +190,7 @@ var needs = {
   },
 
   particleSystem: function(canvas){
-    var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
+    var sys = arbor.ParticleSystem(1000, 600, 0.5); // create the system with sensible repulsion/stiffness/friction
     sys.parameters({
       gravity: true, // use center-gravity to make the graph settle nicely (ymmv)
       stiffness: 1000

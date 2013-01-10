@@ -21,7 +21,7 @@ class RequirementsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @requirement }
+      format.json
     end
   end
 

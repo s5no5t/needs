@@ -4,38 +4,99 @@
 
 <canvas id="viewport" width="400" height="400"></canvas>
 
-<h1><%= @requirement.title %></h1>
+<h1><%= "#{@requirement.id} #{@requirement.title}" %></h1>
 
 <style type="text/css">
-	.page .content h1 {font-size: 120%; padding-top: 0.3em; padding-bottom: 0.3em; border-bottom: 1px solid #eee;}
-  	#viewport {float: right;}
+  .page .content h1 {font-size: 120%; padding-top: 0.3em; padding-bottom: 0.3em; border-bottom: 1px solid #eee;}
+    #viewport {float: right;}
 
-  	.requirement_detailed {background-color: #eee; padding-top: 0.3em; padding-bottom: 0.3em; width: 60%;}
-  	.requirement_detailed p {display: none;}
+    .requirement_detailed {background-color: #eee; padding-top: 0.3em; padding-bottom: 0.3em; width: 60%;}
+    .requirement_detailed p {display: none;}
 
-	img.centered {margin-left: auto; margin-right: auto; display: block; margin-top: 1em; margin-bottom: 1em;}
+  img.centered {margin-left: auto; margin-right: auto; display: block; margin-top: 1em; margin-bottom: 1em;}
 </style>
 
-<% if @deriving_requirements.any? %>
-	<%= render :partial => "req", :collection => @deriving_requirements %>
-	<%= image_tag "arrow_up_32x32.png", :class => "centered" %>
-<% end %>
+<ul data-bind="foreach: deriving_requirements">
+  <li data-bind="with: deriving_requirement, event: {click: $parent.toggle_body}" class="requirement_detailed">
+    <%= render :partial => "req" %>
+  </li>
+</ul>
+<%= image_tag "arrow_up_32x32.png", :class => "centered", :data => {:bind => "visible: any_deriving_requirements"} %>
 
 <br/>
 
-<p>
-  <%= @requirement.body %>
-</p>
+<p data-bind="text: body"></p>
 
 <%= link_to 'Edit', edit_requirement_path(@requirement) %>
 
-<% if @derived_requirements.any? %>
-	<%= image_tag "arrow_down_32x32.png", :class => "centered" %>
-	<%= render :partial => "req", :collection => @derived_requirements %>
-<% end %>
+<%= image_tag "arrow_down_32x32.png", :class => "centered", :data => {:bind => "visible: any_derived_requirements"} %>
+<ul data-bind="foreach: derived_requirements">
+  <li data-bind="with: derived_requirement, event: {click: $parent.toggle_body}" class="requirement_detailed">
+    <%= render :partial => "req" %>
+  </li>
+</ul>
 
 <script type="text/javascript">
-	$(".requirement_detailed").click(function(e){
-		$("p", e.srcElement).toggle(); 
-	});
+  $(function(){
+
+    var canvas = $("#viewport").get(0);
+    var sys = needs.particleSystem(canvas);
+
+    var update_graph_for_req = function(req){
+      var nodes = {}, edges = {};
+      var req_id = req.id.toString();
+
+      nodes[req.id.toString()] = {label: req.id.toString() + " " + req.title.substring(0, 20), url: req.url};
+
+      $(req.derived_requirements).each(function(){
+        var derived_req = this.derived_requirement;
+        var derived_req_id = derived_req.id.toString();
+
+        nodes[derived_req_id] = {
+          label: derived_req_id + " " + derived_req.title.substring(0, 20),
+          url: derived_req.url
+        };
+
+        edges[derived_req_id] = edges[derived_req_id] || {};
+        edges[derived_req_id][req_id] = {};
+      });
+
+      $(req.deriving_requirements).each(function(){
+        var deriving_req = this.deriving_requirement;
+        var deriving_req_id = deriving_req.id.toString();
+
+        nodes[deriving_req_id] = {
+          label: deriving_req_id + " " + deriving_req.title.substring(0, 20),
+          url: deriving_req.url
+        };
+
+        edges[req_id] = edges[req_id] || {};
+        edges[req_id][deriving_req_id] = {};
+      });
+
+      sys.merge({nodes: nodes, edges: edges});
+    };
+
+    var requirement_id = <%= @requirement.id %>; //TODO: this is not dynamic!
+
+    $.getJSON("/requirements/" + requirement_id + ".json", function(data){
+        var viewModel = {
+          toggle_body: function(){
+          },
+
+          any_deriving_requirements: function(){
+            return deriving_requirements.length > 0;
+          },
+
+          any_derived_requirements: function(){
+            return derived_requirements.length > 0;
+          }
+        };
+        $.extend(viewModel, data.requirement);
+
+        ko.applyBindings(viewModel);
+        update_graph_for_req(viewModel);
+      });
+
+  });
 </script>

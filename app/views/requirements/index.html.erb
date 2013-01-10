@@ -36,14 +36,15 @@
         var req = this.requirement;
         var req_id = req.id.toString();
 
-        nodes[req_id] = {label: req_id + " " + req.title.substring(0, 20)};
+        nodes[req_id] = {label: req_id + " " + req.title.substring(0, 20), url: req.url};
 
         $(req.derived_requirements).each(function(){
           var derived_req = this.derived_requirement;
           var derived_req_id = derived_req.id.toString();
 
           nodes[derived_req_id] = {
-            label: derived_req_id + " " + derived_req.title.substring(0, 20)
+            label: derived_req_id + " " + derived_req.title.substring(0, 20),
+            url: derived_req.url
           };
 
           edges[derived_req_id] = edges[derived_req_id] || {};
@@ -55,7 +56,8 @@
           var deriving_req_id = deriving_req.id.toString();
 
           nodes[deriving_req_id] = {
-            label: deriving_req_id + " " + deriving_req.title.substring(0, 20)
+            label: deriving_req_id + " " + deriving_req.title.substring(0, 20),
+            url: deriving_req.url
           };
 
           edges[req_id] = edges[req_id] || {};
@@ -71,14 +73,15 @@
       var nodes = {}, edges = {};
       var req_id = req.id.toString();
 
-      nodes[req.id.toString()] = {label: req.id.toString() + " " + req.title.substring(0, 20)};
+      nodes[req.id.toString()] = {label: req.id.toString() + " " + req.title.substring(0, 20), url: req.url};
 
       $(req.derived_requirements).each(function(){
         var derived_req = this.derived_requirement;
         var derived_req_id = derived_req.id.toString();
 
         nodes[derived_req_id] = {
-          label: derived_req_id + " " + derived_req.title.substring(0, 20)
+          label: derived_req_id + " " + derived_req.title.substring(0, 20),
+          url: derived_req.url
         };
 
         edges[derived_req_id] = edges[derived_req_id] || {};
@@ -90,7 +93,8 @@
         var deriving_req_id = deriving_req.id.toString();
 
         nodes[deriving_req_id] = {
-          label: deriving_req_id + " " + deriving_req.title.substring(0, 20)
+          label: deriving_req_id + " " + deriving_req.title.substring(0, 20),
+          url: deriving_req.url
         };
 
         edges[req_id] = edges[req_id] || {};

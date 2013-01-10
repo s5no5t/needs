@@ -1,8 +1,4 @@
-<div class="requirement_detailed">
-	<span class="id"><%= req.id %></span>
-	<span class="title"><%= req.title %></span>
+<span class="id" data-bind="text: id"></span>
+<span class="title" data-bind="text: title"></span>
 
-	<p>
-		<%= req.body %>
-	</p>
-</div>
+<p data-bind="text: body"></p>
