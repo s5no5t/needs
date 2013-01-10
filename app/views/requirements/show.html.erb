@@ -40,63 +40,28 @@
   $(function(){
 
     var canvas = $("#viewport").get(0);
-    var sys = needs.particleSystem(canvas);
-
-    var update_graph_for_req = function(req){
-      var nodes = {}, edges = {};
-      var req_id = req.id.toString();
-
-      nodes[req.id.toString()] = {label: req.id.toString() + " " + req.title.substring(0, 20), url: req.url};
-
-      $(req.derived_requirements).each(function(){
-        var derived_req = this.derived_requirement;
-        var derived_req_id = derived_req.id.toString();
-
-        nodes[derived_req_id] = {
-          label: derived_req_id + " " + derived_req.title.substring(0, 20),
-          url: derived_req.url
-        };
-
-        edges[derived_req_id] = edges[derived_req_id] || {};
-        edges[derived_req_id][req_id] = {};
-      });
-
-      $(req.deriving_requirements).each(function(){
-        var deriving_req = this.deriving_requirement;
-        var deriving_req_id = deriving_req.id.toString();
-
-        nodes[deriving_req_id] = {
-          label: deriving_req_id + " " + deriving_req.title.substring(0, 20),
-          url: deriving_req.url
-        };
-
-        edges[req_id] = edges[req_id] || {};
-        edges[req_id][deriving_req_id] = {};
-      });
-
-      sys.merge({nodes: nodes, edges: edges});
-    };
+    var requirementsGraph = needs.requirementsGraph(canvas);
 
     var requirement_id = <%= @requirement.id %>; //TODO: this is not dynamic!
 
     $.getJSON("/requirements/" + requirement_id + ".json", function(data){
-        var viewModel = {
-          toggle_body: function(){
-          },
+      var viewModel = {
+        toggle_body: function(){
+        },
 
-          any_deriving_requirements: function(){
-            return deriving_requirements.length > 0;
-          },
+        any_deriving_requirements: function(){
+          return deriving_requirements.length > 0;
+        },
 
-          any_derived_requirements: function(){
-            return derived_requirements.length > 0;
-          }
-        };
-        $.extend(viewModel, data.requirement);
+        any_derived_requirements: function(){
+          return derived_requirements.length > 0;
+        }
+      };
+      $.extend(viewModel, data.requirement);
 
-        ko.applyBindings(viewModel);
-        update_graph_for_req(viewModel);
-      });
+      ko.applyBindings(viewModel);
+      requirementsGraph.update_graph_for_req(viewModel);
+    });
 
   });
 </script>
