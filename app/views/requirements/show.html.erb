@@ -17,7 +17,7 @@
 </style>
 
 <ul data-bind="foreach: deriving_requirements">
-  <li data-bind="with: deriving_requirement, event: {click: $parent.toggle_body}" class="requirement_detailed">
+  <li data-bind="with: deriving_requirement, click: $parent.toggleDerivingRequirementShouldDisplayBody" class="requirement_detailed">
     <%= render :partial => "req" %>
   </li>
 </ul>
@@ -31,7 +31,7 @@
 
 <%= image_tag "arrow_down_32x32.png", :class => "centered", :data => {:bind => "visible: any_derived_requirements"} %>
 <ul data-bind="foreach: derived_requirements">
-  <li data-bind="with: derived_requirement, event: {click: $parent.toggle_body}" class="requirement_detailed">
+  <li data-bind="with: derived_requirement, click: $parent.toggleDerivedRequirementShouldDisplayBody" class="requirement_detailed">
     <%= render :partial => "req" %>
   </li>
 </ul>
@@ -46,7 +46,12 @@
 
     $.getJSON("/requirements/" + requirement_id + ".json", function(data){
       var viewModel = {
-        toggle_body: function(){
+        toggleDerivingRequirementShouldDisplayBody: function(){
+          this.deriving_requirement.shouldDisplayBody(!this.deriving_requirement.shouldDisplayBody());
+        },
+
+        toggleDerivedRequirementShouldDisplayBody: function(){
+          this.derived_requirement.shouldDisplayBody(!this.derived_requirement.shouldDisplayBody());
         },
 
         any_deriving_requirements: function(){
@@ -58,6 +63,16 @@
         }
       };
       $.extend(viewModel, data.requirement);
+      $(viewModel.derived_requirements).each(function(){
+        $.extend(this.derived_requirement, {
+          shouldDisplayBody: ko.observable(false)
+        });
+      });
+      $(viewModel.deriving_requirements).each(function(){
+        $.extend(this.deriving_requirement, {
+          shouldDisplayBody: ko.observable(false)
+        });
+      });
 
       ko.applyBindings(viewModel);
       requirementsGraph.update_graph_for_req(viewModel);
