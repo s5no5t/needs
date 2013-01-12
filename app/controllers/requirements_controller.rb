@@ -16,8 +16,6 @@ class RequirementsController < ApplicationController
   def show
     @requirement = Requirement.includes(:derived_requirements, :deriving_requirements)
                               .find(params[:id])
-    @deriving_requirements = @requirement.deriving_requirements
-    @derived_requirements = @requirement.derived_requirements
 
     respond_to do |format|
       format.html # show.html.erb
@@ -40,7 +38,6 @@ class RequirementsController < ApplicationController
   def edit
     @requirement = Requirement.includes(:deriving_requirements)
                               .find(params[:id])
-    @deriving_requirements = @requirement.deriving_requirements
   end
 
   # POST /requirements
