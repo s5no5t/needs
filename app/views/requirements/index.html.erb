@@ -6,22 +6,13 @@
                                       click: $parent.show
                                     }">
     <td class='id' data-bind="text: id"></td>
-    <td class='title'>
+    <td>
       <a data-bind="text: title, attr: {href: url}"></a>
     </td>
   </tr>
 </table>
 
-<style type="text/css">
-  #requirements_list {width: 60%;}
-  #requirements_list a {text-decoration: none; color: inherit;}
-  #requirements_list a:hover {background-color: inherit;}
-  #requirements_list td {padding: 0.3em;}
-  #requirements_list tr:hover {cursor: pointer; background-color: #ddd;}
-  #requirements_list tr {background-color: #eee; border: 1px solid #ddd;}
-
-  #viewport {float: right;}
-</style>
+<p class="create_requirement"><%= link_to 'New Requirement', new_requirement_path %></p>
 
 <script type="text/javascript">
   $(function(){
@@ -54,7 +45,3 @@
 
   });
 </script>
-
-<br />
-
-<%= link_to 'New Requirement', new_requirement_path %>

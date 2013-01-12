@@ -4,34 +4,29 @@
 
 <canvas id="viewport" width="400" height="400"></canvas>
 
-<h1><%= "#{@requirement.id} #{@requirement.title}" %></h1>
-
-<style type="text/css">
-  .page .content h1 {font-size: 120%; padding-top: 0.3em; padding-bottom: 0.3em; border-bottom: 1px solid #eee;}
-    #viewport {float: right;}
-
-    .requirement_detailed {background-color: #eee; padding-top: 0.3em; padding-bottom: 0.3em; width: 60%;}
-    .requirement_detailed p {display: none;}
-
-  img.centered {margin-left: auto; margin-right: auto; display: block; margin-top: 1em; margin-bottom: 1em;}
-</style>
-
-<ul data-bind="foreach: deriving_requirements">
-  <li data-bind="with: deriving_requirement, click: $parent.toggleDerivingRequirementShouldDisplayBody" class="requirement_detailed">
+<ul class="requirements_detailed_list" data-bind="foreach: deriving_requirements">
+  <li data-bind="with: deriving_requirement, 
+                click: $parent.toggleDerivingRequirementShouldDisplayBody, 
+                css: {expanded: deriving_requirement.shouldDisplayBody} ">
     <%= render :partial => "req" %>
   </li>
 </ul>
 <%= image_tag "arrow_up_32x32.png", :class => "centered", :data => {:bind => "visible: any_deriving_requirements"} %>
 
-<br/>
+<h1>
+  <span class="req_id"><%= @requirement.id %></span>
+  <span class="title"><%= @requirement.title %></span> 
+</h1>
 
 <p data-bind="text: body"></p>
 
 <%= link_to 'Edit', edit_requirement_path(@requirement) %>
 
 <%= image_tag "arrow_down_32x32.png", :class => "centered", :data => {:bind => "visible: any_derived_requirements"} %>
-<ul data-bind="foreach: derived_requirements">
-  <li data-bind="with: derived_requirement, click: $parent.toggleDerivedRequirementShouldDisplayBody" class="requirement_detailed">
+<ul class="requirements_detailed_list" data-bind="foreach: derived_requirements">
+  <li data-bind="with: derived_requirement, 
+                 click: $parent.toggleDerivedRequirementShouldDisplayBody, 
+                 css: {expanded: derived_requirement.shouldDisplayBody}">
     <%= render :partial => "req" %>
   </li>
 </ul>
@@ -42,7 +37,7 @@
     var canvas = $("#viewport").get(0);
     var requirementsGraph = needs.requirementsGraph(canvas);
 
-    var requirement_id = <%= @requirement.id %>; //TODO: this is not dynamic!
+    var requirement_id = <%= @requirement.id %>;
 
     $.getJSON("/requirements/" + requirement_id + ".json", function(data){
       var viewModel = {

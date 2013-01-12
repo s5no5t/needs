@@ -1,5 +1,3 @@
-<canvas id="viewport" width="400" height="400"></canvas>
-
 <%= form_for(@requirement) do |f| %>
   <% if @requirement.errors.any? %>
     <div id="error_explanation">
@@ -12,10 +10,6 @@
       </ul>
     </div>
   <% end %>
-
-  <%= render :partial => "req", :collection => @deriving_requirements %>
-  <%= image_tag "arrow_up_32x32.png", :class => "centered" %>
-  <br/>
 
   <div class="field">
     <%= f.label :title %><br />
@@ -30,9 +24,3 @@
     <%= f.submit %>
   </div>
 <% end %>
-
-<style type="text/css">
-  #viewport {float: right;}
-
-  img.centered {margin-left: auto; margin-right: auto; display: block; margin-top: 1em; margin-bottom: 1em;}
-</style>

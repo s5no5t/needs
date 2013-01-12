@@ -1,3 +1,59 @@
 <%= link_to image_tag("arrow_left_alt1_24x24.png"), requirements_path %>
 
+<canvas id="viewport" width="400" height="400"></canvas>
+
+<ul class="requirements_detailed_list" data-bind="foreach: deriving_requirements">
+  <li data-bind="with: deriving_requirement, 
+                click: $parent.toggleDerivingRequirementShouldDisplayBody, 
+                css: {expanded: deriving_requirement.shouldDisplayBody} ">
+    <%= render :partial => "req" %>
+  </li>
+</ul>
+<%= image_tag "arrow_up_32x32.png", :class => "centered" %>
+
 <%= render 'form' %>
+
+<script type="text/javascript">
+  $(function(){
+
+    var canvas = $("#viewport").get(0);
+    var requirementsGraph = needs.requirementsGraph(canvas);
+
+    var requirement_id = <%= @requirement.id %>;
+
+    $.getJSON("/requirements/" + requirement_id + ".json", function(data){
+      var viewModel = {
+        toggleDerivingRequirementShouldDisplayBody: function(){
+          this.deriving_requirement.shouldDisplayBody(!this.deriving_requirement.shouldDisplayBody());
+        },
+
+        toggleDerivedRequirementShouldDisplayBody: function(){
+          this.derived_requirement.shouldDisplayBody(!this.derived_requirement.shouldDisplayBody());
+        },
+
+        any_deriving_requirements: function(){
+          return deriving_requirements.length > 0;
+        },
+
+        any_derived_requirements: function(){
+          return derived_requirements.length > 0;
+        }
+      };
+      $.extend(viewModel, data.requirement);
+      $(viewModel.derived_requirements).each(function(){
+        $.extend(this.derived_requirement, {
+          shouldDisplayBody: ko.observable(false)
+        });
+      });
+      $(viewModel.deriving_requirements).each(function(){
+        $.extend(this.deriving_requirement, {
+          shouldDisplayBody: ko.observable(false)
+        });
+      });
+
+      ko.applyBindings(viewModel);
+      requirementsGraph.update_graph_for_req(viewModel);
+    });
+
+  });
+</script>

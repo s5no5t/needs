@@ -4,8 +4,9 @@
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
 
 @import "compass/reset";
-
 @import "susy";
+@import "compass/typography/links/unstyled-link";
+@import "compass/typography/links/link-colors";
 
 $column-width: 4em;
 $total-columns: 15;
@@ -33,5 +34,74 @@ $total-columns: 15;
 
 		// secondary content spans the final 3 (omega) of 9 columns.
 		//.secondary { @include span-columns(3 omega,9); }
+
+		h1 {
+			font-size: 120%; 
+			padding-top: 0.6em; 
+			padding-bottom: 0.6em; 
+		}
 	}
 }
+
+img.centered {margin-left: auto; margin-right: auto; display: block; margin-top: 1em; margin-bottom: 1em;}
+
+.page {
+	#requirements_list {
+		width: 60%;
+
+		a {
+			@include unstyled-link;
+		}
+		/*a {
+			text-decoration: none; color: inherit;
+			&:hover {background-color: inherit;}
+		}*/
+		td {
+			padding: 0.3em;
+		}
+		tr {
+			background-color: #eee; 
+			border: 1px solid #ddd;
+		}
+	}
+	
+	#viewport {
+		float: right;
+	}
+
+	.requirements_detailed_list {
+		width: 60%;
+
+		li {
+			border-top: 1px solid #ddd;
+			border-bottom: 1px solid #ddd;
+			padding: 0.6em;
+			background-color: #eee;
+		}
+
+		li.expanded {
+			background-color: #fff;
+			p{
+				margin-top: 0.5em;
+				font-size: 90%;
+				margin-left: 1em;
+			}
+			a{
+				margin-left: 1em;
+			}
+		}
+	}
+
+	.req_id {
+		font-size: 80%;
+	}
+
+	.create_requirement {
+		padding-top: 1em;
+	}
+	.title {
+		font-weight: bold;
+	}	
+}
+
+
