@@ -15,4 +15,5 @@
 //= require arbor
 //= require arbor-tween
 //= require knockout
+//= require knockout.mapping-latest.debug.js
 //= require_tree ./global
