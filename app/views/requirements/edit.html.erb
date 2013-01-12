@@ -13,6 +13,15 @@
 
 <%= render 'form' %>
 
+<%= image_tag "arrow_down_32x32.png", :class => "centered", :data => {:bind => "visible: any_derived_requirements"} %>
+<ul class="requirements_detailed_list" data-bind="foreach: derived_requirements">
+  <li data-bind="with: derived_requirement, 
+                 click: $parent.toggleDerivedRequirementShouldDisplayBody, 
+                 css: {expanded: derived_requirement.shouldDisplayBody}">
+    <%= render :partial => "req" %>
+  </li>
+</ul>
+
 <script type="text/javascript">
   $(function(){
 
