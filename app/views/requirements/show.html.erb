@@ -4,30 +4,34 @@
 
 <canvas id="viewport" width="400" height="400"></canvas>
 
-<ul class="requirements_detailed_list" data-bind="foreach: deriving_requirements">
+<ul class="requirements_detailed_list" data-bind="foreach: requirement.deriving_requirements">
   <li data-bind="with: deriving_requirement, 
-                click: $parent.toggleDerivingRequirementShouldDisplayBody, 
                 css: {expanded: deriving_requirement.shouldDisplayBody} ">
-    <%= render :partial => "req" %>
+    <span class="req_id" data-bind="text: id"></span>
+    <span class="title" data-bind="text: title, 
+                                   click: $root.toggleDerivingRequirementShouldDisplayBody"></span>
+    <p data-bind="text: body, visible: shouldDisplayBody"></p>
   </li>
 </ul>
-<%= image_tag "arrow_up_32x32.png", :class => "centered", :data => {:bind => "visible: any_deriving_requirements"} %>
+<%= image_tag "arrow_up_32x32.png", :class => "centered" %>
 
 <h1>
   <span class="req_id"><%= @requirement.id %></span>
   <span class="title"><%= @requirement.title %></span> 
 </h1>
 
-<p data-bind="text: body"></p>
+<p><%= @requirement.body %></p>
 
 <%= link_to 'Edit', edit_requirement_path(@requirement) %>
 
-<%= image_tag "arrow_down_32x32.png", :class => "centered", :data => {:bind => "visible: any_derived_requirements"} %>
-<ul class="requirements_detailed_list" data-bind="foreach: derived_requirements">
-  <li data-bind="with: derived_requirement, 
-                 click: $parent.toggleDerivedRequirementShouldDisplayBody, 
+<%= image_tag "arrow_down_32x32.png", :class => "centered" %>
+<ul class="requirements_detailed_list" data-bind="foreach: requirement.derived_requirements">
+  <li data-bind="with: derived_requirement,
                  css: {expanded: derived_requirement.shouldDisplayBody}">
-    <%= render :partial => "req" %>
+    <span class="req_id" data-bind="text: id"></span>
+    <span class="title" data-bind="text: title, 
+                                   click: $root.toggleDerivedRequirementShouldDisplayBody"></span>
+    <p data-bind="text: body, visible: shouldDisplayBody"></p>
   </li>
 </ul>
 
@@ -40,37 +44,51 @@
     var requirement_id = <%= @requirement.id %>;
 
     $.getJSON("/requirements/" + requirement_id + ".json", function(data){
-      var viewModel = {
-        toggleDerivingRequirementShouldDisplayBody: function(){
-          this.deriving_requirement.shouldDisplayBody(!this.deriving_requirement.shouldDisplayBody());
-        },
+      var mapped_data = ko.mapping.fromJS(data);
 
-        toggleDerivedRequirementShouldDisplayBody: function(){
-          this.derived_requirement.shouldDisplayBody(!this.derived_requirement.shouldDisplayBody());
-        },
+      var requirementViewModel = function(){
+        var that = {};
 
-        any_deriving_requirements: function(){
-          return deriving_requirements.length > 0;
-        },
+        that.requirement = mapped_data.requirement;
 
-        any_derived_requirements: function(){
-          return derived_requirements.length > 0;
-        }
+        that.toggleDerivingRequirementShouldDisplayBody = function(){
+          this.shouldDisplayBody(!this.shouldDisplayBody());
+        };
+
+        that.toggleDerivedRequirementShouldDisplayBody = function(){
+          this.shouldDisplayBody(!this.shouldDisplayBody());
+        };
+
+        that.remove_deriving_requirement = function(item, event){
+          mapped_data.requirement.deriving_requirements.remove(function(r){
+            return item.id() === r.deriving_requirement.id();
+          });
+        };
+
+        that.remove_derived_requirement = function(item, event){
+          mapped_data.requirement.derived_requirements.remove(function(r){
+            return item.id() === r.derived_requirement.id();
+          });
+        };
+
+        return that;
       };
-      $.extend(viewModel, data.requirement);
-      $(viewModel.derived_requirements).each(function(){
-        $.extend(this.derived_requirement, {
+
+      var viewModel = requirementViewModel();
+
+      $(viewModel.requirement.deriving_requirements()).each(function(){
+        $.extend(this.deriving_requirement, {
           shouldDisplayBody: ko.observable(false)
         });
       });
-      $(viewModel.deriving_requirements).each(function(){
-        $.extend(this.deriving_requirement, {
+      $(viewModel.requirement.derived_requirements()).each(function(){
+        $.extend(this.derived_requirement, {
           shouldDisplayBody: ko.observable(false)
         });
       });
 
       ko.applyBindings(viewModel);
-      requirementsGraph.update_graph_for_req(viewModel);
+      //requirementsGraph.update_graph_for_req(viewModel.requirement);
     });
 
   });

@@ -9,13 +9,26 @@
     <span class="title" data-bind="text: title, 
                                    click: $root.toggleDerivingRequirementShouldDisplayBody"></span>
     <%= image_tag "minus_24x6.png", :data => {:bind => "click: $root.remove_deriving_requirement"} %>
-
     <p data-bind="text: body, visible: shouldDisplayBody"></p>
   </li>
 </ul>
-<%= image_tag "arrow_up_32x32.png", :class => "centered" %>
+<%= image_tag "arrow_up_32x32.png", :class => "centered", 
+              :data => {:bind => "visible: $root.requirement.deriving_requirements().length > 0"} %>
 
 <%= render 'form' %>
+
+<%= image_tag "arrow_down_32x32.png", :class => "centered", 
+              :data => {:bind => "visible: $root.requirement.derived_requirements().length > 0"} %>
+<ul class="requirements_detailed_list" data-bind="foreach: requirement.derived_requirements">
+  <li data-bind="with: derived_requirement, 
+                 css: {expanded: derived_requirement.shouldDisplayBody}">
+    <span class="req_id" data-bind="text: id"></span>
+    <span class="title" data-bind="text: title, 
+                                   click: $root.toggleDerivedRequirementShouldDisplayBody"></span>
+    <%= image_tag "minus_24x6.png", :data => {:bind => "click: $root.remove_derived_requirement"} %>
+    <p data-bind="text: body, visible: shouldDisplayBody"></p>
+  </li>
+</ul>
 
 <script type="text/javascript">
   $(function(){
@@ -26,8 +39,6 @@
     var requirement_id = <%= @requirement.id %>;
 
     $.getJSON("/requirements/" + requirement_id + ".json", function(data){
-      var that = {};
-
       var mapped_data = ko.mapping.fromJS(data);
 
       var requirementViewModel = function(){
@@ -40,7 +51,7 @@
         };
 
         that.toggleDerivedRequirementShouldDisplayBody = function(){
-          this.derived_requirement.shouldDisplayBody(!this.derived_requirement.shouldDisplayBody());
+          this.shouldDisplayBody(!this.shouldDisplayBody());
         };
 
         that.remove_deriving_requirement = function(item, event){
@@ -49,12 +60,10 @@
           });
         };
 
-        that.any_deriving_requirements = function(){
-          return requirement.deriving_requirements.length > 0;
-        };
-
-        that.any_derived_requirements = function(){
-          return requirement.derived_requirements.length > 0;
+        that.remove_derived_requirement = function(item, event){
+          mapped_data.requirement.derived_requirements.remove(function(r){
+            return item.id() === r.derived_requirement.id();
+          });
         };
 
         return that;
@@ -62,13 +71,13 @@
 
       var viewModel = requirementViewModel();
 
-      $(viewModel.requirement.derived_requirements()).each(function(){
-        $.extend(this.derived_requirement, {
+      $(viewModel.requirement.deriving_requirements()).each(function(){
+        $.extend(this.deriving_requirement, {
           shouldDisplayBody: ko.observable(false)
         });
       });
-      $(viewModel.requirement.deriving_requirements()).each(function(){
-        $.extend(this.deriving_requirement, {
+      $(viewModel.requirement.derived_requirements()).each(function(){
+        $.extend(this.derived_requirement, {
           shouldDisplayBody: ko.observable(false)
         });
       });
