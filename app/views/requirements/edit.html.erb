@@ -2,33 +2,71 @@
 
 <canvas id="viewport" width="400" height="400"></canvas>
 
-<ul class="requirements_detailed_list" data-bind="foreach: requirement.deriving_requirements">
-  <li data-bind="with: deriving_requirement, 
-                css: {expanded: deriving_requirement.shouldDisplayBody} ">
-    <span class="req_id" data-bind="text: id"></span>
-    <span class="title" data-bind="text: title, 
-                                   click: $root.toggleDerivingRequirementShouldDisplayBody"></span>
-    <%= image_tag "minus_24x6.png", :data => {:bind => "click: $root.remove_deriving_requirement"} %>
-    <p data-bind="text: body, visible: shouldDisplayBody"></p>
-  </li>
-</ul>
-<%= image_tag "arrow_up_32x32.png", :class => "centered", 
-              :data => {:bind => "visible: $root.requirement.deriving_requirements().length > 0"} %>
+<%= form_for(@requirement) do |f| %>
 
-<%= render 'form' %>
+  <% if @requirement.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@requirement.errors.count, "error") %> prohibited this requirement from being saved:</h2>
 
-<%= image_tag "arrow_down_32x32.png", :class => "centered", 
-              :data => {:bind => "visible: $root.requirement.derived_requirements().length > 0"} %>
-<ul class="requirements_detailed_list" data-bind="foreach: requirement.derived_requirements">
-  <li data-bind="with: derived_requirement, 
-                 css: {expanded: derived_requirement.shouldDisplayBody}">
-    <span class="req_id" data-bind="text: id"></span>
-    <span class="title" data-bind="text: title, 
-                                   click: $root.toggleDerivedRequirementShouldDisplayBody"></span>
-    <%= image_tag "minus_24x6.png", :data => {:bind => "click: $root.remove_derived_requirement"} %>
-    <p data-bind="text: body, visible: shouldDisplayBody"></p>
-  </li>
-</ul>
+      <ul>
+      <% @requirement.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <ul class="requirements_detailed_list" data-bind="foreach: requirement.deriving_requirements">
+    <li data-bind="with: deriving_requirement, 
+                  css: {expanded: deriving_requirement.shouldDisplayBody} ">
+      <input type="hidden" data-bind="attr: {name: identifier()}" value="true"></input>
+      <span class="req_id" data-bind="text: id"></span>
+      <span class="title" data-bind="text: title, 
+                                     click: $root.toggleDerivingRequirementShouldDisplayBody"></span>
+      <%= image_tag "minus_24x6.png", :data => {:bind => "click: $root.remove_deriving_requirement"} %>
+      <p data-bind="text: body, visible: shouldDisplayBody"></p>
+    </li>
+  </ul>
+
+  <div class="add_requirement">
+    <select data-bind="options: all_deriving_requirements, optionsText: 'title', value: selectedDerivingRequirement"></select>
+    <%= image_tag "plus_24x24.png", :data => {:bind => "click: add_deriving_requirement"} %>
+  </div>
+  <%= image_tag "arrow_up_32x32.png", :class => "centered" %>
+
+  <div class="field">
+    <%= f.label :title %><br />
+    <%= f.text_field :title %>
+  </div>
+  <div class="field">
+    <%= f.label :body %><br />
+    <%= f.text_area :body %>
+  </div>
+  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+
+  <%= image_tag "arrow_down_32x32.png", :class => "centered" %>
+
+  <ul class="requirements_detailed_list" data-bind="foreach: requirement.derived_requirements">
+    <li data-bind="with: derived_requirement, 
+                   css: {expanded: derived_requirement.shouldDisplayBody}">
+      <input type="hidden" data-bind="attr: {name: identifier()}" value="true"></input>
+      <span class="req_id" data-bind="text: id"></span>
+      <span class="title" data-bind="text: title, 
+                                     click: $root.toggleDerivedRequirementShouldDisplayBody"></span>
+      <%= image_tag "minus_24x6.png", :data => {:bind => "click: $root.remove_derived_requirement"} %>
+      <p data-bind="text: body, visible: shouldDisplayBody"></p>
+    </li>
+  </ul>
+
+  <div class="add_requirement">
+    <select data-bind="options: all_derived_requirements, optionsText: 'title', value: selectedDerivedRequirement"></select>
+    <%= image_tag "plus_24x24.png", :data => {:bind => "click: add_derived_requirement"} %>
+  </div>
+
+<% end %>
 
 <script type="text/javascript">
   $(function(){
@@ -66,6 +104,26 @@
           });
         };
 
+        that.add_deriving_requirement = function(){
+          this.requirement.deriving_requirements.push({
+            deriving_requirement: this.selectedDerivingRequirement()
+          });
+        };
+
+        that.add_derived_requirement = function(){
+          this.requirement.derived_requirements.push({
+            derived_requirement: this.selectedDerivedRequirement()
+          });
+        };
+
+        that.all_deriving_requirements = ko.observableArray();
+
+        that.all_derived_requirements = ko.observableArray();
+
+        that.selectedDerivingRequirement = ko.observable();
+
+        that.selectedDerivedRequirement = ko.observable();
+
         return that;
       };
 
@@ -73,18 +131,47 @@
 
       $(viewModel.requirement.deriving_requirements()).each(function(){
         $.extend(this.deriving_requirement, {
-          shouldDisplayBody: ko.observable(false)
+          shouldDisplayBody: ko.observable(false), 
+          identifier: function(){ return "requirement[deriving_requirements][" + this.id() + "]";}
         });
       });
       $(viewModel.requirement.derived_requirements()).each(function(){
         $.extend(this.derived_requirement, {
-          shouldDisplayBody: ko.observable(false)
+          shouldDisplayBody: ko.observable(false),
+          identifier: function(){ return "requirement[derived_requirements][" + this.id() + "]";}
         });
       });
 
       ko.applyBindings(viewModel);
       requirementsGraph.update_graph_for_req(viewModel.requirement);
+
+      $.getJSON("/requirements.json", function(data){
+        var mapped_data = ko.mapping.fromJS(data);
+        $(mapped_data()).each(function(){
+
+          $.extend(this.requirement, {
+            shouldDisplayBody: ko.observable(false),
+            identifier: function(){ return "requirement[deriving_requirements][" + this.id() + "]";}
+          });
+
+          viewModel.all_deriving_requirements.push(this.requirement);
+        });
+
+        mapped_data = ko.mapping.fromJS(data);
+        $(mapped_data()).each(function(){
+
+          $.extend(this.requirement, {
+            shouldDisplayBody: ko.observable(false),
+            identifier: function(){ return "requirement[derived_requirements][" + this.id() + "]";}
+          });
+
+          viewModel.all_derived_requirements.push(this.requirement);
+        });
+
+      });
     });
+
+    $.ajax
 
   });
 </script>

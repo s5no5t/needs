@@ -106,11 +106,8 @@ describe RequirementsController do
     describe "with valid params" do
       it "updates the requested requirement" do
         requirement = Requirement.create! valid_attributes
-        # Assuming there are no other requirements in the database, this
-        # specifies that the Requirement created on the previous line
-        # receives the :update_attributes message with whatever params are
-        # submitted in the request.
-        Requirement.any_instance.should_receive(:update_attributes).with({ "title" => "MyString" })
+        Requirement.any_instance.should_receive(:title=).with("MyString")
+        Requirement.any_instance.should_receive(:save)
         put :update, {:id => requirement.to_param, :requirement => { "title" => "MyString" }}, valid_session
       end
 

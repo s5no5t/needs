@@ -1,6 +1,8 @@
 class Requirement < ActiveRecord::Base
   attr_accessible :body, :title
 
+  validates_presence_of :title
+
   has_many :derived_relationships, :foreign_key => 'deriving_requirement_id'
   has_many :derived_requirements, :through => :derived_relationships
 

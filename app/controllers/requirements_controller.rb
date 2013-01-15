@@ -61,14 +61,61 @@ class RequirementsController < ApplicationController
   def update
     @requirement = Requirement.find(params[:id])
 
+    @requirement.title = params[:requirement][:title]
+    @requirement.body = params[:requirement][:body]
+
+    params[:requirement][:deriving_requirements] ||= {}
+    update_deriving_requirements params[:requirement][:deriving_requirements].keys
+
+    params[:requirement][:derived_requirements] ||= {}
+    update_derived_requirements params[:requirement][:derived_requirements].keys
+
     respond_to do |format|
-      if @requirement.update_attributes(params[:requirement])
+      if @requirement.save
         format.html { redirect_to @requirement, notice: 'Requirement was successfully updated.' }
-        format.json { head :no_content }
+        #format.json { head :no_content } TODO
       else
         format.html { render action: "edit" }
-        format.json { render json: @requirement.errors, status: :unprocessable_entity }
+        #format.json { render json: @requirement.errors, status: :unprocessable_entity } TODO
       end
+    end
+  end
+
+  def update_deriving_requirements ids
+    deriving_relationships_before = @requirement.deriving_relationships.dup
+
+    ids.each do |id|
+      deriving_relationship = deriving_relationships_before.select {|rel| rel.deriving_requirement.id.to_s == id}.first
+
+      if deriving_relationship
+        deriving_relationships_before.delete deriving_relationship
+      else
+        relationship = @requirement.deriving_relationships.build
+        relationship.deriving_requirement = Requirement.find(id)
+      end
+    end
+
+    deriving_relationships_before.each do |rel|
+      rel.destroy
+    end
+  end
+
+  def update_derived_requirements ids
+    derived_relationships_before = @requirement.derived_relationships.dup
+
+    ids.each do |id|
+      derived_relationship = derived_relationships_before.select {|rel| rel.derived_requirement.id.to_s == id}.first
+
+      if derived_relationship
+        derived_relationships_before.delete derived_relationship
+      else
+        relationship = @requirement.derived_relationships.build
+        relationship.derived_requirement = Requirement.find(id)
+      end
+    end
+
+    derived_relationships_before.each do |rel|
+      rel.destroy
     end
   end
 
