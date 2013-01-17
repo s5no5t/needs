@@ -16,4 +16,5 @@
 //= require arbor-tween
 //= require knockout
 //= require knockout.mapping-latest.debug.js
+//= require jquery.cookie.js
 //= require_tree ./global

@@ -1,4 +1,7 @@
-<canvas id="viewport" width="400" height="400"></canvas>
+
+<button id="switch">Switch view</button>
+
+<canvas id="viewport" height="400"></canvas>
 
 <table id='requirements_list' data-bind="foreach: requirements, event: {mouseleave: update_graph_for_all_reqs}">
   <tr data-bind="with: requirement, event: {
@@ -21,12 +24,13 @@
     var requirementsGraph = needs.requirementsGraph(canvas);
 
     $.getJSON("<%= requirements_path(:format => :json) %>", function(data){
+      var mapped_data = ko.mapping.fromJS(data);
 
       var viewModel = {
-        requirements: data,
+        requirements: mapped_data(),
 
         show: function(){
-          var href = this.requirement.url;
+          var href = this.requirement.url();
           window.location.href = href;
         },
 
@@ -35,12 +39,43 @@
         },
 
         update_graph_for_all_reqs: function(){
-          requirementsGraph.update_graph_for_reqs(data);
+          requirementsGraph.update_graph_for_reqs(mapped_data());
         }
       };
 
       ko.applyBindings(viewModel);
-      requirementsGraph.update_graph_for_reqs(data);
+      requirementsGraph.update_graph_for_reqs(mapped_data());
+    });
+
+    var switchToList = function(){
+      $("#requirements_list").show();
+      canvas.width = 400; //TODO: make dynamic!
+      requirementsGraph.resize();
+    };
+
+    var switchToGraph = function(){
+      $("#requirements_list").hide();
+      var width = $(".content").get(0).offsetWidth;
+      canvas.width = width;
+      requirementsGraph.resize();
+    };
+
+    var indexMode = $.cookie("indexMode");
+    if (indexMode === null || indexMode === "graph"){
+      $("#requirements_list").hide();
+      switchToGraph();
+    }
+
+    $("#switch").click(function() {
+      var indexMode = $.cookie("indexMode");
+
+      if (indexMode === null || indexMode === "list"){
+        switchToGraph();
+        $.cookie("indexMode", "graph");
+      } else {
+        switchToList();
+        $.cookie("indexMode", "list");
+      }
     });
 
   });

@@ -27,6 +27,12 @@ var needs = {
         // set up some event handlers to allow for node-dragging
         that.initMouseHandling();
       };
+
+      that.resize = function(){
+        if (particleSystem){ // don't try to change size if it's not initialized yet
+          particleSystem.screenSize(canvas.width, canvas.height);
+        }
+      };
         
       that.redraw = function(){
         // redraw will be called repeatedly during the run whenever the node positions
@@ -240,30 +246,30 @@ var needs = {
 
       $(reqs).each(function(){
         var req = this.requirement;
-        var req_id = req.id.toString();
+        var req_id = req.id().toString();
 
-        nodes[req_id] = {label: req_id + " " + req.title.substring(0, 20), url: req.url};
+        nodes[req_id] = {label: req_id + " " + req.title().substring(0, 20), url: req.url()};
 
-        $(req.derived_requirements).each(function(){
+        $(req.derived_requirements()).each(function(){
           var derived_req = this.derived_requirement;
-          var derived_req_id = derived_req.id.toString();
+          var derived_req_id = derived_req.id().toString();
 
           nodes[derived_req_id] = {
-            label: derived_req_id + " " + derived_req.title.substring(0, 20),
-            url: derived_req.url
+            label: derived_req_id + " " + derived_req.title().substring(0, 20),
+            url: derived_req.url()
           };
 
           edges[derived_req_id] = edges[derived_req_id] || {};
           edges[derived_req_id][req_id] = {};
         });
 
-        $(req.deriving_requirements).each(function(){
+        $(req.deriving_requirements()).each(function(){
           var deriving_req = this.deriving_requirement;
-          var deriving_req_id = deriving_req.id.toString();
+          var deriving_req_id = deriving_req.id().toString();
 
           nodes[deriving_req_id] = {
-            label: deriving_req_id + " " + deriving_req.title.substring(0, 20),
-            url: deriving_req.url
+            label: deriving_req_id + " " + deriving_req.title().substring(0, 20),
+            url: deriving_req.url()
           };
 
           edges[req_id] = edges[req_id] || {};
@@ -272,6 +278,10 @@ var needs = {
       });
 
       this.sys.merge({nodes: nodes, edges: edges});
+    };
+
+    that.resize = function(){
+      this.sys.renderer.resize();
     };
 
     that.sys = particleSystem(canvas);
